@@ -40,22 +40,22 @@ public class TodoItemsController : ControllerBase
 
     //PUT: api/TodoItems/:id
     [HttpPut("{id}")]
-    public async Task<IActionResult> PutTodoItem(long id, TodoItemDTO todoDTO)
+    public async Task<IActionResult> PutTodoItem(long id, TodoItemUpdateDTO todoDTO)
     {
-        if(id !=  todoDTO.Id)
+        if (id != todoDTO.Id)
         {
             return BadRequest();
         }
-        
         var todoItem = await _todoContext.TodoItems.FindAsync(id);
 
-        if(todoItem == null)
+        if (todoItem == null)
         {
             return NotFound();
         }
 
-        todoItem.Name = todoDTO.Name;
-        todoItem.IsComplete = todoDTO.IsComplete;
+        //Supports partial updates
+        if(todoDTO.IsComplete.HasValue) todoItem.IsComplete = (bool)todoDTO.IsComplete;
+        if(todoDTO.Name != null) todoItem.Name = todoDTO.Name;
 
         try
         {
@@ -68,6 +68,13 @@ public class TodoItemsController : ControllerBase
 
         return NoContent(); //change to return updated todoItem
     }
+
+    //PATCH: api/TodoItems/:id
+    //[HttpPatch("{id}")]
+    //public async Task<IActionResult> PatchTodoItem(long id, TodoItemDTO todoDTO)
+    //{
+
+    //}
 
     // POST: api/TodoItems
     [HttpPost]
